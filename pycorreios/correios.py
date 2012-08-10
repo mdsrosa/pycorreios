@@ -68,22 +68,34 @@ class Correios(object):
         return self._getDados(tags_name, dom)
 
     def cep(self,numero):
-        url = 'http://cep.republicavirtual.com.br/web_cep.php?formato=xml&cep=%s' % (str(numero),)
-        dom = minidom.parse(urllib2.urlopen(url))
+        # esta base está desatualizada
+        #url = 'http://cep.republicavirtual.com.br/web_cep.php?formato=xml&cep=%s' % (str(numero),)
+        
+        url = 'http://api.develman.com/correios/cep.dm?xml&v=%d' % numero
+        
+        try:
+              dom = minidom.parse(urllib2.urlopen(url))
 
-        tags_name = ('uf',
-                     'cidade',
-                     'bairro',
-                     'tipo_logradouro',
-                     'logradouro',
-                    )
+        #tags_name = ('uf',
+        #             'cidade',
+        #             'bairro',
+        #             'tipo_logradouro',
+        #             'logradouro',
+        #            )
+        
+              tags_name = ('estado','cidade', 'bairro', 'logradouro', 'cep')
 
-        resultado = dom.getElementsByTagName('resultado')[0]
-        resultado = int(resultado.childNodes[0].data)
-        if resultado != 0:
-            return self._getDados(tags_name, dom)
-        else:
-            return {}
+        #resultado = dom.getElementsByTagName('resultado')[0]
+              resultado = dom.getElementByTagName('root')[0]
+        #resultado = int(resultado.childNodes[0].data)
+        #if resultado != 0:
+        #    return self._getDados(tags_name, dom)
+        #else:
+            #return {}
+              return self._getDados(tags_name, dom)
+        # quando o CEP não é encontrado a API retorna um erro de XML
+        except:
+              return {}
 
     def encomenda(self,numero):
         # Usado como referencia o codigo do Guilherme Chapiewski
